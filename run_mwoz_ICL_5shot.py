@@ -36,7 +36,7 @@ os.makedirs(args.output_dir, exist_ok=True)
 with open(os.path.join(args.output_dir, "exp_config.json"), 'w') as f:
     json.dump(vars(args), f, indent=4)
 
-NUM_EXAMPLE = 10
+NUM_EXAMPLE = 5
 
 # read the ontology and the test set
 if args.mwz_ver == '2.1':

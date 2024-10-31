@@ -1,13 +1,13 @@
 accelerate launch sft_correctionlm.py \
     --model_name="meta-llama/Meta-Llama-3-8B-Instruct" \
-    --output_dir="models/mwoz/sft_llama3_on_train5p_zeroshot/" \
-    --train_data_file="data/llama3_on_train5p_zeroshot_ICL_prompt.json" \
-    --valid_data_file="data/llama3_on_train5p_zeroshot_ICL_prompt.json" \
+    --output_dir="models/sgd/sft_llama3_on_train5p_zeroshot/" \
+    --train_data_file="data/sgd/llama3_on_train5p_zeroshot_ICL_prompt.json" \
+    --valid_data_file="data/sgd/llama3_on_train5p_zeroshot_ICL_prompt.json" \
     --do_train \
     --do_eval \
     --evaluation_strategy="steps" \
     --eval_steps=1000 \
-    --max_steps=5000 \
+    --max_steps=10000 \
     --logging_steps=1000 \
     --save_steps=1000 \
     --per_device_train_batch_size=1 \
@@ -24,5 +24,5 @@ accelerate launch sft_correctionlm.py \
     --optim="paged_adamw_32bit" \
     --remove_unused_columns=True \
     --run_name="sft_llama3_on_train5p_zeroshot" \
-    --WANDB_PROJECT="sft_llama_mwoz_correction" \
-    --report_to="wandb" 
+    --WANDB_PROJECT="sft_llama_sgd_correction" \
+    --report_to="wandb"

@@ -36,3 +36,19 @@ class PreviousStateRecorder:
             return {}
         else:
             return self.states[dialog_ID][turn_id - 1]
+
+def clean_sql_completion(completion):
+    if completion.endswith(";"):
+        completion = completion[:-1]
+
+    unwanted_phrases = [
+        "```sql", "```SQL", "SELECT * FROM", "SELECT", "```", "SQL:", "\n"
+    ]
+
+    for phrase in unwanted_phrases:
+        completion = completion.replace(phrase, "").strip()
+
+    if "FROM" in completion:
+        completion = completion.split("FROM")[1].strip()
+
+    return completion

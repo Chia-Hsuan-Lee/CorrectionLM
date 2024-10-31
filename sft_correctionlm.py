@@ -136,7 +136,7 @@ def main():
         peft_config=peft_config,
         dataset_text_field='text',
         packing=script_args.packing,
-        max_seq_length=1990,
+        max_seq_length=2000,
         tokenizer=tokenizer,
         args=training_args,
     )
