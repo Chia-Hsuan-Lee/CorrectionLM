@@ -11,7 +11,7 @@ CorrectionLM is a novel correction framework that enables Small Language Models 
 
 [**Installation**](#Installation) | [**Preprocess**](#Download-and-Preprocess-Data) | [**Training**](#Training) | [**Inference**](#Inference) | | [**Evaluation**](#Evaluation) | | [**Citation**](#Citation-and-Contact)
 
-## Installation #TODO
+## Installation
 
 Create a conda environment
 ```console
@@ -53,6 +53,7 @@ python run_mwoz_ICL_5shot.py \
 ```
 
 For SGD,
+```console
 python run_sgd_ICL_5shot.py \
       --lm meta-llama/Meta-Llama-3-8B-Instruct \
       --retriever_dir retriever/expts/sgd_finetune_train5p/ \
@@ -60,7 +61,7 @@ python run_sgd_ICL_5shot.py \
       --test_fn data/sgd/sgd_train_5p.json
 
 Then we create the in-context exemplars to finetune the SLM. Unlike traditional ICL methods that only consider the input and gold output, we also incoporate the model’s (erroneous) self predictions.
-
+```
 
 For MultiWOZ,
 ```console
@@ -106,13 +107,14 @@ python run_mwoz_ICL_vanilla.py \
 ```
 
 For SGD,
+```console
 python run_sgd_ICL_vanilla.py \
       --train_fn data/sgd/sgd_train_5p.json \
       --retriever_dir retriever/expts/sgd_finetune_train5p/ \
       --lm meta-llama/Meta-Llama-3-8B-Instruct \
       --output_dir expts/sgd/llama3_train_5p_on_test100p/  \
       --test_fn data/sgd/sgd_test_100p.json
-
+```
 
 We then prompt the correction-tuned SLM (correction SLM) to refine the initial predictions made in the first step.
 For MWOZ,
@@ -127,13 +129,14 @@ python run_mwoz_correctionlm.py \
 ```
 
 For SGD,
+```console
 python run_sgd_correctionlm.py \
     --train_fn  expts/sgd/llama3_on_train5p_zeroshot/running_log.json \
     --retriever_dir retriever/expts/sgd_finetune_train5p/ \
     --output_dir expts/sgd/correction_outputs/llama_example_llama_inference_train5p_test100p/  \
     --test_fn expts/sgd/llama3_train_5p_on_test100p/running_log.json \
     --model models/sgd/sft_llama3_on_train5p_zeroshot/
-
+```
 
 ## Evaluation
 Compute the JGA and F1 for both dialogue level (DST) and turn level (TLB). 
