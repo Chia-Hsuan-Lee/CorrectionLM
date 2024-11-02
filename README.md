@@ -35,8 +35,7 @@ sh preprocess_sgd.sh
 The trained retrievers are saved in `retriever/expts` folder. Each subfolder is a trained retriever.
 
 ### retriever quickstart
-If you want to skip the retriever finetuning etc. part, 
-just download one of our retriever finetuned on 5% training set and try it.
+If you want to skip the retriever finetuning part, simply download one of our retriever finetuned on 5% training set and try it.
 Download and unzip [mwoz_5p_SBERT.zip](https://drive.google.com/file/d/1Qwm0NAc6GRp-3xx7edeunO7umtsYwfQt/view?usp=sharing), put the folder in `retriever/expts`. (For SGD, [sgd_5p_SBERT.zip](https://drive.google.com/file/d/1KxoESMIWyAL3zLSKKBeNz3nus9wWBj_k/view?usp=sharing))
 
 ### retriever details
@@ -81,11 +80,14 @@ python runs/run_mwoz_ICL_5shot.py \
 ```
 
 For SGD,
+```console
+
 python runs/run_sgd_ICL_5shot.py \
       --lm meta-llama/Meta-Llama-3-8B-Instruct \
       --retriever_dir retriever/expts/sgd_5p_SBERT/ \
       --output_dir expts/sgd/llama3_on_train5p_zeroshot/  \
       --test_fn data/sgd/sgd_train_5p.json
+```
 
 Then we create the in-context exemplars to finetune the SLM. Unlike traditional ICL methods that only consider the input and gold output, we also incoporate the model’s (erroneous) self predictions.
 ```
@@ -94,7 +96,7 @@ For MultiWOZ,
 ```console
 python data/create_mwoz_llama_SFT_prompt.py \
       --train_fn expts/mwoz/llama3_on_train5p_zeroshot/running_log.json \
-      --retriever_dir retriever/expts/mw24_5p/ \
+      --retriever_dir retriever/expts/mwoz_5p_SBERT/ \
       --output_fn data/mwoz/llama3_on_train5p_zeroshot_ICL_prompt.json  \
       --test_fn expts/mwoz/llama3_on_train5p_zeroshot/running_log.json \
       --mwz_ver 2.4
@@ -127,7 +129,7 @@ For MultiWOZ,
 ```console
 python runs/run_mwoz_ICL_vanilla.py \
       --train_fn data/mw24_5p_train.json \
-      --retriever_dir retriever/expts/mw24_5p/ \
+      --retriever_dir retriever/expts/mwoz_5p_SBERT/ \
       --lm meta-llama/Meta-Llama-3-8B-Instruct \
       --output_dir expts/mwoz/llama3_train_5p_on_test100p/  \
       --test_fn data/mw24_100p_test.json \
@@ -135,6 +137,7 @@ python runs/run_mwoz_ICL_vanilla.py \
 ```
 
 For SGD,
+```console
 python runs/run_sgd_ICL_vanilla.py \
       --train_fn data/sgd/sgd_train_5p.json \
       --retriever_dir retriever/expts/sgd_5p_SBERT/ \
@@ -148,7 +151,7 @@ For MWOZ,
 ```console
 python runs/run_mwoz_correctionlm.py \
     --train_fn expts/mwoz/llama3_on_train5p_zeroshot/running_log.json \
-    --retriever_dir retriever/expts/mw24_5p/ \
+    --retriever_dir retriever/expts/mwoz_5p_SBERT/ \
     --output_dir expts/mwoz/correction_outputs/llama_example_llama_inference_train5p_test100p/  \
     --test_fn expts/mwoz/llama3_train_5p_on_test100p/running_log.json \
     --mwz_ver 2.4 \
@@ -156,6 +159,7 @@ python runs/run_mwoz_correctionlm.py \
 ```
 
 For SGD,
+```console
 python runs/run_sgd_correctionlm.py \
     --train_fn  expts/sgd/llama3_on_train5p_zeroshot/running_log.json \
     --retriever_dir retriever/expts/sgd_5p_SBERT/ \
