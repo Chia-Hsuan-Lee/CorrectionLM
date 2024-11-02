@@ -11,7 +11,7 @@ CorrectionLM is a novel correction framework that enables Small Language Models 
 
 [**Installation**](#Installation) | [**Preprocess**](#Download-and-Preprocess-Data) | [**Training**](#Training) | [**Inference**](#Inference) | | [**Evaluation**](#Evaluation) | | [**Citation**](#Citation-and-Contact)
 
-## Installation #TODO
+## Installation
 
 Create a conda environment
 ```console
@@ -37,7 +37,7 @@ The trained retrievers are saved in `retriever/expts` folder. Each subfolder is 
 ### retriever quickstart
 If you want to skip the retriever finetuning etc. part, 
 just download one of our retriever finetuned on 5% training set and try it.
-Download and unzip [](), put the folder in `retriever/expts`.
+Download and unzip [mwoz_5p_SBERT.zip](https://drive.google.com/file/d/1Qwm0NAc6GRp-3xx7edeunO7umtsYwfQt/view?usp=sharing), put the folder in `retriever/expts`. (For SGD, [sgd_5p_SBERT.zip](https://drive.google.com/file/d/1KxoESMIWyAL3zLSKKBeNz3nus9wWBj_k/view?usp=sharing))
 
 ### retriever details
 First embed all the utterances with SBERT (all-mpnet-base-v2) by
@@ -46,10 +46,10 @@ cd retriever/code/
 python pretrained_embed_index.py
 ```
 This will save all the embeddings in `retriever/expts/all_mpnet_base_v2`.
-To finetune SBERT with data in `../../data/mw24_5p_v2.json`, run
+To finetune SBERT with data in `../../data/mw24_5p_train.json`, run
 ```console
 python retriever_finetuning.py \
---train_fn ../../data/mw24_5p_train_v2.json \
+--train_fn ../../data/mw24_5p_train.json \
 --save_name mw24_5p_SBERT \
 --epoch 15 \
 --topk 10 \
@@ -88,7 +88,7 @@ python runs/run_sgd_ICL_5shot.py \
       --test_fn data/sgd/sgd_train_5p.json
 
 Then we create the in-context exemplars to finetune the SLM. Unlike traditional ICL methods that only consider the input and gold output, we also incoporate the model’s (erroneous) self predictions.
-
+```
 
 For MultiWOZ,
 ```console
@@ -141,7 +141,7 @@ python runs/run_sgd_ICL_vanilla.py \
       --lm meta-llama/Meta-Llama-3-8B-Instruct \
       --output_dir expts/sgd/llama3_train_5p_on_test100p/  \
       --test_fn data/sgd/sgd_test_100p.json
-
+```
 
 We then prompt the correction-tuned SLM (correction SLM) to refine the initial predictions made in the first step.
 For MWOZ,
@@ -162,7 +162,7 @@ python runs/run_sgd_correctionlm.py \
     --output_dir expts/sgd/correction_outputs/llama_example_llama_inference_train5p_test100p/  \
     --test_fn expts/sgd/llama3_train_5p_on_test100p/running_log.json \
     --model models/sgd/sft_llama3_on_train5p_zeroshot/
-
+```
 
 ## Evaluation
 Compute the JGA and F1 for both dialogue level (DST) and turn level (TLB). 
