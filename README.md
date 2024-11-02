@@ -31,12 +31,40 @@ sh preprocess_sgd.sh
 ```
 
 
+## Retriever
+The trained retrievers are saved in `retriever/expts` folder. Each subfolder is a trained retriever.
+
+### retriever quickstart
+If you want to skip the retriever finetuning etc. part, 
+just download one of our retriever finetuned on 5% training set and try it.
+Download and unzip [](), put the folder in `retriever/expts`.
+
+### retriever details
+First embed all the utterances with SBERT (all-mpnet-base-v2) by
+```console
+cd retriever/code/
+python pretrained_embed_index.py
+```
+This will save all the embeddings in `retriever/expts/all_mpnet_base_v2`.
+To finetune SBERT with data in `../../data/mw24_5p_v2.json`, run
+```console
+python retriever_finetuning.py \
+--train_fn ../../data/mw24_5p_train_v2.json \
+--save_name mw24_5p_SBERT \
+--epoch 15 \
+--topk 10 \
+--toprange 200
+```
+This will save the embedding model and pre-embeded selection pool to `retriever/expts/mw24_5p_SBERT`.
+
+
 ## Training
 The first step of the training is to obtain SLM predictions using ICL in order to provide supervision signals for the correction training.
 
 For MultiWOZ,
 ```console
-python run_mwoz_ICL_5shot.py \
+cd runs
+python runs/run_mwoz_ICL_5shot.py \
       --output_dir expts/mwoz/llama3_on_train5p_zeroshot/  \
       --lm meta-llama/Meta-Llama-3-8B-Instruct \
       --test_fn data/mw24_5p_train.json \
@@ -45,7 +73,7 @@ python run_mwoz_ICL_5shot.py \
 
 You can also use GPT-4o for comparisons
 ```console
-python run_mwoz_ICL_5shot.py \
+python runs/run_mwoz_ICL_5shot.py \
       --output_dir expts/mwoz/gpt4o_on_train5p_zeroshot/  \
       --lm gpt4 \
       --test_fn data/mw24_5p_train.json \
@@ -53,9 +81,9 @@ python run_mwoz_ICL_5shot.py \
 ```
 
 For SGD,
-python run_sgd_ICL_5shot.py \
+python runs/run_sgd_ICL_5shot.py \
       --lm meta-llama/Meta-Llama-3-8B-Instruct \
-      --retriever_dir retriever/expts/sgd_finetune_train5p/ \
+      --retriever_dir retriever/expts/sgd_5p_SBERT/ \
       --output_dir expts/sgd/llama3_on_train5p_zeroshot/  \
       --test_fn data/sgd/sgd_train_5p.json
 
@@ -64,9 +92,9 @@ Then we create the in-context exemplars to finetune the SLM. Unlike traditional 
 
 For MultiWOZ,
 ```console
-python create_mwoz_llama_SFT_prompt.py \
+python data/create_mwoz_llama_SFT_prompt.py \
       --train_fn expts/mwoz/llama3_on_train5p_zeroshot/running_log.json \
-      --retriever_dir retriever/expts/mw21_5p/ \
+      --retriever_dir retriever/expts/mw24_5p/ \
       --output_fn data/mwoz/llama3_on_train5p_zeroshot_ICL_prompt.json  \
       --test_fn expts/mwoz/llama3_on_train5p_zeroshot/running_log.json \
       --mwz_ver 2.4
@@ -74,9 +102,9 @@ python create_mwoz_llama_SFT_prompt.py \
 
 For SGD,
 ```console
-python create_sgd_llama_SFT_prompt.py \
+python data/create_sgd_llama_SFT_prompt.py \
       --train_fn expts/sgd/llama3_on_train5p_zeroshot/running_log.json \
-      --retriever_dir retriever/expts/sgd_finetune_train5p/ \
+      --retriever_dir retriever/expts/sgd_5p_SBERT/ \
       --output_fn data/sgd/llama3_on_train5p_zeroshot_ICL_prompt.json  \
       --test_fn expts/sgd/llama3_on_train5p_zeroshot/running_log.json
 ```
@@ -84,7 +112,8 @@ python create_sgd_llama_SFT_prompt.py \
 The second step is to train the SLM. In order to be computation-efficient, we aadopt [QLoRA](https://arxiv.org/abs/2305.14314) for training, i.e. we quantize the SLM then insert LoRA adapaters.
 For MultiWOZ, 
 ```console
-sh train.sh
+cd runs
+sh train_mwoz.sh
 ```
 For SGD, 
 ```console
@@ -96,9 +125,9 @@ The first step of the inference is to get initial predictions by a non-finetuned
 
 For MultiWOZ,
 ```console
-python run_mwoz_ICL_vanilla.py \
+python runs/run_mwoz_ICL_vanilla.py \
       --train_fn data/mw24_5p_train.json \
-      --retriever_dir retriever/expts/mw21_5p/ \
+      --retriever_dir retriever/expts/mw24_5p/ \
       --lm meta-llama/Meta-Llama-3-8B-Instruct \
       --output_dir expts/mwoz/llama3_train_5p_on_test100p/  \
       --test_fn data/mw24_100p_test.json \
@@ -106,9 +135,9 @@ python run_mwoz_ICL_vanilla.py \
 ```
 
 For SGD,
-python run_sgd_ICL_vanilla.py \
+python runs/run_sgd_ICL_vanilla.py \
       --train_fn data/sgd/sgd_train_5p.json \
-      --retriever_dir retriever/expts/sgd_finetune_train5p/ \
+      --retriever_dir retriever/expts/sgd_5p_SBERT/ \
       --lm meta-llama/Meta-Llama-3-8B-Instruct \
       --output_dir expts/sgd/llama3_train_5p_on_test100p/  \
       --test_fn data/sgd/sgd_test_100p.json
@@ -117,9 +146,9 @@ python run_sgd_ICL_vanilla.py \
 We then prompt the correction-tuned SLM (correction SLM) to refine the initial predictions made in the first step.
 For MWOZ,
 ```console
-python run_mwoz_correctionlm.py \
+python runs/run_mwoz_correctionlm.py \
     --train_fn expts/mwoz/llama3_on_train5p_zeroshot/running_log.json \
-    --retriever_dir retriever/expts/mw21_5p/ \
+    --retriever_dir retriever/expts/mw24_5p/ \
     --output_dir expts/mwoz/correction_outputs/llama_example_llama_inference_train5p_test100p/  \
     --test_fn expts/mwoz/llama3_train_5p_on_test100p/running_log.json \
     --mwz_ver 2.4 \
@@ -127,9 +156,9 @@ python run_mwoz_correctionlm.py \
 ```
 
 For SGD,
-python run_sgd_correctionlm.py \
+python runs/run_sgd_correctionlm.py \
     --train_fn  expts/sgd/llama3_on_train5p_zeroshot/running_log.json \
-    --retriever_dir retriever/expts/sgd_finetune_train5p/ \
+    --retriever_dir retriever/expts/sgd_5p_SBERT/ \
     --output_dir expts/sgd/correction_outputs/llama_example_llama_inference_train5p_test100p/  \
     --test_fn expts/sgd/llama3_train_5p_on_test100p/running_log.json \
     --model models/sgd/sft_llama3_on_train5p_zeroshot/
@@ -138,7 +167,7 @@ python run_sgd_correctionlm.py \
 ## Evaluation
 Compute the JGA and F1 for both dialogue level (DST) and turn level (TLB). 
 ```console
-python eval_result.py \
+python eval/eval_result.py \
       --eval_fn expts/mwoz/correction_outputs/llama_example_llama_inference_train5p_test100p/running_log.json \
       --eval_mode second_pass # first_pass to score on the results produced by non-finetuned LM
 ```
