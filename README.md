@@ -90,7 +90,6 @@ python runs/run_sgd_ICL_5shot.py \
 ```
 
 Then we create the in-context exemplars to finetune the SLM. Unlike traditional ICL methods that only consider the input and gold output, we also incoporate the model’s (erroneous) self predictions.
-```
 
 For MultiWOZ,
 ```console
@@ -181,6 +180,12 @@ python eval/eval_result.py \
 
 If you find our code or paper useful, please cite the paper:
 ```bib
+@article{lee2024correctionlm,
+  title={CorrectionLM: Self-Corrections with SLM for Dialogue State Tracking},
+  author={Lee, Chia-Hsuan and Cheng, Hao and Ostendorf, Mari},
+  journal={arXiv preprint arXiv:2410.18209},
+  year={2024}
+}
 ```
 
 Please contact Chia-Hsuan Lee (chiahsuan.li[at]gmail.com) for questions and suggestions.
